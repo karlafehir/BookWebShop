@@ -5,13 +5,15 @@
         <div class="row">
             <div class="col-12 text-center">
                 <h2 class="text-dark py-2">
-                    Create Product
+                    Edit Product
                 </h2>
             </div>
         </div>
     </div>
     <div class="card-body p-4">
         <form method="post">
+            @* Dodaj red ispod kod delete i update *@
+            <input asp-for="Id" hidden />
             <div class="border p-3">
                 <div class="form-floating py-2 col-12">
                     <input asp-for="Title" class="form-control border-0" />
@@ -38,35 +40,38 @@
                 </div>
 
                 <div class="form-floating py-2 col-12">
-                    <input type="number" step=".01" asp-for="ListPrice" class="form-control border-0" />
+                    <input asp-for="ListPrice" class="form-control border-0" />
                     <label asp-for="ListPrice"></label>
                     <span asp-validation-for="ListPrice" class="text-danger"></span>
                 </div>
 
                 <div class="form-floating py-2 col-12">
-                    <input type="number" step=".01" asp-for="Price" class="form-control border-0" />
+                    <input asp-for="Price" class="form-control border-0" />
                     <label asp-for="Price"></label>
                     <span asp-validation-for="Price" class="text-danger"></span>
                 </div>
                 <div class="form-floating py-2 col-12">
-                    <input type="number" step=".01" asp-for="Price50" class="form-control border-0" />
+                    <input asp-for="Price50" class="form-control border-0" />
                     <label asp-for="Price50"></label>
                     <span asp-validation-for="Price50" class="text-danger"></span>
                 </div>
                 <div class="form-floating py-2 col-12">
-                    <input type="number" step=".01" asp-for="Price100" class="form-control border-0" />
+                    <input asp-for="Price100" class="form-control border-0" />
                     <label asp-for="Price100"></label>
                     <span asp-validation-for="Price100" class="text-danger"></span>
                 </div>
 
-             
+
+
+
+
 
 
 
                 <div class="row pt-2">
                     <div class="col-6 col-md-3">
                         <button type="submit" class="btn btn-primary form-control">
-                            Create
+                            Edit
                         </button>
                     </div>
                     <div class="col-6 col-md-3">
@@ -85,4 +90,3 @@
         <partial name="_ValidationScriptsPartial" />
     }
 }
-
