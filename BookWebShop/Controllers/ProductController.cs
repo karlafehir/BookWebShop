@@ -2,16 +2,20 @@
 using BookWebShop.DataAccess.Data;
 using BookWebShop.Models.Models;
 using BookWebShop.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using BookWebShop.Models.ViewModels;
 
 namespace BookWebShop.Controllers;
 
 public class ProductController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public ProductController(IUnitOfWork unitOfWork)
+    public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
     {
         _unitOfWork = unitOfWork;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public IActionResult Index()
@@ -20,55 +24,100 @@ public class ProductController : Controller
         return View(productList);
     }
 
-    public IActionResult Create()
+    public IActionResult Upsert(int? productId)
     {
-        return View();
-    }
-
-    [HttpPost]
-    public IActionResult Create(Product product)
-    {
-        if (ModelState.IsValid)
+        IEnumerable<SelectListItem> categoryList = _unitOfWork.Category.GetAll().Select(c => new SelectListItem
         {
-            _unitOfWork.Product.Add(product);
-            _unitOfWork.Save();
-            TempData["success"] = "Product created Successfully";
-            return RedirectToAction("Index", "Product");
-        }
+            Text = c.Name,
+            Value = c.Id.ToString()
+        });
 
-        return View();
-    }
+        //1. nacin - najbrzi
+        //ViewBag.CategoryList = categoryList; // asp -for= "Product.CategoryId" asp-items="ViewBag.categoryList"
+        //2.nacin
+        //ViewData["CategoryList"]= categoryList; // asp -for= "Product.CategoryId" asp-items="@(ViewData["CategoryList"]) as IEnumerable<SelectListItem>"
+        //return View();
 
-    public IActionResult Edit(int? productId)
-    {
+        //3.nacin - najcisci
+        ProductViewModel productViewModel = new ProductViewModel()
+        {
+            CategoryList = categoryList,
+            Product = new Product()
+        };
+
         if (productId == null || productId == 0)
         {
-            return NotFound();
+            //Create
+            return View(productViewModel);
         }
-
-        Product? product = _unitOfWork.Product.Get(c => c.Id == productId);
-
-        if (product == null)
+        else
         {
-            return NotFound();
+            //Update
+            productViewModel.Product = _unitOfWork.Product.Get(p => p.Id == productId);
+            return View(productViewModel);
         }
 
-        return View(product);
+        // < select asp -for= "@Model.Product.CategoryId" asp - items = "@Model.CategoryList" class="form-select border-0 shadow">
     }
 
     [HttpPost]
-    public IActionResult Edit(Product product)
+    public IActionResult Upsert(ProductViewModel productViewModel, IFormFile file) // <input type="file" name="file
     {
         if (ModelState.IsValid)
         {
-            _unitOfWork.Product.Update(product);
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+            if (file != null)
+            {
+                string fileName = Guid.NewGuid().ToString();
+                string productPath = Path.Combine(wwwRootPath, @"images\product");
+
+                if(!string.IsNullOrEmpty(productViewModel.Product.ImageUrl))
+                {
+                    var oldImagePath = Path.Combine(wwwRootPath, productViewModel.Product.ImageUrl.Trim('\\')); //kod create  putanje file se doda dodatni \\ i moramo ga brisat
+
+                    if(System.IO.File.Exists(oldImagePath)) 
+                    { 
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+
+
+                //using sam radi dispose, ne moramo naknadno disposeat
+                using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                {
+                    file.CopyTo(fileStream);
+                }
+                productViewModel.Product.ImageUrl = @"images\product\" + fileName;
+            }
+
+            if (productViewModel.Product.Id == 0)
+            {
+                _unitOfWork.Product.Add(productViewModel.Product);
+            }
+            else
+            {
+                _unitOfWork.Product.Update(productViewModel.Product);
+            }
+
             _unitOfWork.Save();
-            TempData["success"] = "Product edited successfully!";
+            //TempData["success"] = "Product created Successfully";
             return RedirectToAction("Index", "Product");
         }
+        //else nakon refresha da se ne isprazni dropdown
+        else
+        {
+            productViewModel.CategoryList = _unitOfWork.Category.GetAll().Select(c => new SelectListItem
+            {
+                Text = c.Name,
+                Value = c.Id.ToString()
+            });
+        }
 
-        return View();
+        return View(productViewModel);
     }
+
     public IActionResult Delete(int? productId)
     {
         if (productId == null || productId == 0)
