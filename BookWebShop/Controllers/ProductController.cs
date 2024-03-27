@@ -20,7 +20,8 @@ public class ProductController : Controller
 
     public IActionResult Index()
     {
-        List<Product> productList = _unitOfWork.Product.GetAll().ToList();
+        //includeProperties se koristi ovdje kao join u bazi - poveznica izmedu category i product
+        List<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
         return View(productList);
     }
 
@@ -61,7 +62,7 @@ public class ProductController : Controller
     }
 
     [HttpPost]
-    public IActionResult Upsert(ProductViewModel productViewModel, IFormFile file) // <input type="file" name="file
+    public IActionResult Upsert(ProductViewModel productViewModel, IFormFile? file) // <input type="file" name="file
     {
         if (ModelState.IsValid)
         {

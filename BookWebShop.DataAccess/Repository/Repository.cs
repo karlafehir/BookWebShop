@@ -18,6 +18,8 @@ public class Repository<T> : IRepository<T> where T : class
     {
         _context = context;
         dbSet = _context.Set<T>();
+        //2. nacin poveznice product i category u db - losiji pristup; svaki put kada trebamo products se poziva i category kada nije potrebno 
+        //_context.Products.Include(p => p.Category);
     }
 
     public void Add(T entity)
@@ -35,17 +37,35 @@ public class Repository<T> : IRepository<T> where T : class
         dbSet.RemoveRange(entity);
     }
 
-    public T Get(Expression<Func<T, bool>> filter)
+    //includeProperties = null - null kao default
+    public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null)
     {
         IQueryable<T> query = dbSet;
         query = query.Where(filter);
 
+        if(!string.IsNullOrEmpty(includeProperties))
+        {
+            foreach(var property in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(property);
+            }
+        }
+
         return query.FirstOrDefault();
     }
 
-    public IEnumerable<T> GetAll()
+    public IEnumerable<T> GetAll(string? includeProperties = null)
     {
         IQueryable<T> query = dbSet;
+
+        if (!string.IsNullOrEmpty(includeProperties))
+        {
+            foreach (var property in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(property);
+            }
+        }
+
         return query.ToList();
     }
 }
