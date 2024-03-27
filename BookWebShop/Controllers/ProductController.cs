@@ -65,15 +65,21 @@ public class ProductController : Controller
     {
         if (ModelState.IsValid)
         {
+            //vodi nas do rute
             string wwwRootPath = _webHostEnvironment.WebRootPath;
 
+            //provjera jel file postoji
             if (file != null)
             {
-                string fileName = Guid.NewGuid().ToString();
+                //generiramo filename
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                //tocni path di spremamo sliku
                 string productPath = Path.Combine(wwwRootPath, @"images\product");
 
+                //provjera jel slika vec postoji u bazi
                 if(!string.IsNullOrEmpty(productViewModel.Product.ImageUrl))
                 {
+                    //nadi putanju postojece slike, porvjeri i obrisi ju
                     var oldImagePath = Path.Combine(wwwRootPath, productViewModel.Product.ImageUrl.Trim('\\')); //kod create  putanje file se doda dodatni \\ i moramo ga brisat
 
                     if(System.IO.File.Exists(oldImagePath)) 
@@ -82,14 +88,13 @@ public class ProductController : Controller
                     }
                 }
 
-
-
                 //using sam radi dispose, ne moramo naknadno disposeat
                 using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                 {
                     file.CopyTo(fileStream);
                 }
-                productViewModel.Product.ImageUrl = @"images\product\" + fileName;
+
+                productViewModel.Product.ImageUrl = @"\images\product\" + fileName;
             }
 
             if (productViewModel.Product.Id == 0)

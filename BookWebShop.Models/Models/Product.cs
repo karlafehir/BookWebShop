@@ -17,7 +17,7 @@ public class Product
     [Required]
     public string Title { get; set; }
     [Required]
-    public int ISBN { get; set; }
+    public string ISBN { get; set; }
     [Required]
     public string Author { get; set; }
     [DisplayName("List Price")]
@@ -33,6 +33,7 @@ public class Product
     [ForeignKey("CategoryId")]
     [ValidateNever]
     public Category Category { get; set; }
+    [ValidateNever]
     public string ImageUrl { get; set; }
 
     //public string Description { get; set; }
