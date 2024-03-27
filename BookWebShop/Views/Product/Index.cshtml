@@ -13,11 +13,11 @@
     </div>
 </div>
 
-<table class="table table-bordered table-striped">
+<table id="tblData" class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>
-                Product Name
+                Title
             </th>
             <th>
                 ISBN
@@ -31,10 +31,13 @@
             <th>
                 Category
             </th>
+            <th>
+
+            </th>
             
         </tr>
     </thead>
-    <tbody>
+   @*  <tbody>
         @foreach (var product in Model)
         {
             <tr>
@@ -57,5 +60,9 @@
                 </td>
             </tr>
         }
-    </tbody>
+    </tbody> *@
 </table>
+
+@section Scripts{
+    <script src="~/js/product.js"></script>
+}

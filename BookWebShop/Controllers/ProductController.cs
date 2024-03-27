@@ -25,7 +25,7 @@ public class ProductController : Controller
         return View(productList);
     }
 
-    public IActionResult Upsert(int? productId)
+    public IActionResult Upsert(int? id)
     {
         IEnumerable<SelectListItem> categoryList = _unitOfWork.Category.GetAll().Select(c => new SelectListItem
         {
@@ -46,7 +46,7 @@ public class ProductController : Controller
             Product = new Product()
         };
 
-        if (productId == null || productId == 0)
+        if (id == null || id == 0)
         {
             //Create
             return View(productViewModel);
@@ -54,7 +54,7 @@ public class ProductController : Controller
         else
         {
             //Update
-            productViewModel.Product = _unitOfWork.Product.Get(p => p.Id == productId);
+            productViewModel.Product = _unitOfWork.Product.Get(p => p.Id == id);
             return View(productViewModel);
         }
 
@@ -78,13 +78,13 @@ public class ProductController : Controller
                 string productPath = Path.Combine(wwwRootPath, @"images\product");
 
                 //provjera jel slika vec postoji u bazi
-                if(!string.IsNullOrEmpty(productViewModel.Product.ImageUrl))
+                if (!string.IsNullOrEmpty(productViewModel.Product.ImageUrl))
                 {
                     //nadi putanju postojece slike, porvjeri i obrisi ju
                     var oldImagePath = Path.Combine(wwwRootPath, productViewModel.Product.ImageUrl.Trim('\\')); //kod create  putanje file se doda dodatni \\ i moramo ga brisat
 
-                    if(System.IO.File.Exists(oldImagePath)) 
-                    { 
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
                         System.IO.File.Delete(oldImagePath);
                     }
                 }
@@ -124,38 +124,72 @@ public class ProductController : Controller
         return View(productViewModel);
     }
 
-    public IActionResult Delete(int? productId)
+    //public IActionResult Delete(int? productId)
+    //{
+    //    if (productId == null || productId == 0)
+    //    {
+    //        return NotFound();
+    //    }
+
+    //    Product? product = _unitOfWork.Product.Get(c => c.Id == productId);
+
+    //    if (product == null)
+    //    {
+    //        return NotFound();
+    //    }
+
+    //    return View(product);
+    //}
+
+    ////poziva se preko forme - dodali POST jer imamo 2 metode s istim imenom i parametrom
+    //[HttpPost, ActionName("Delete")]
+    //public IActionResult DeletePOST(int? productId)
+    //{
+    //    Product? product = _unitOfWork.Product.Get(c => c.Id == productId);
+
+    //    if (product == null)
+    //    {
+    //        return NotFound();
+    //    }
+
+    //    _unitOfWork.Product.Delete(product);
+    //    _unitOfWork.Save();
+    //    TempData["success"] = "Product deleted successfully";
+
+    //    return RedirectToAction("Index", "Product");
+    //}
+
+    #region API Calls
+
+    [HttpGet]
+    public IActionResult GetAll()
     {
-        if (productId == null || productId == 0)
-        {
-            return NotFound();
-        }
-
-        Product? product = _unitOfWork.Product.Get(c => c.Id == productId);
-
-        if (product == null)
-        {
-            return NotFound();
-        }
-
-        return View(product);
+        List<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+        return Json(new { data = productList });
     }
 
-    //poziva se preko forme - dodali POST jer imamo 2 metode s istim imenom i parametrom
-    [HttpPost, ActionName("Delete")]
-    public IActionResult DeletePOST(int? productId)
+    [HttpDelete]
+    public IActionResult Delete(int? id)
     {
-        Product? product = _unitOfWork.Product.Get(c => c.Id == productId);
+        var product = _unitOfWork.Product.Get(p => p.Id == id);
 
         if (product == null)
         {
-            return NotFound();
+            return Json(new { success = false, message = "Error while deleting." });
+        }
+
+        //brisanje slike
+        var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageUrl.Trim('\\'));
+
+        if (System.IO.File.Exists(oldImagePath))
+        {
+            System.IO.File.Delete(oldImagePath);
         }
 
         _unitOfWork.Product.Delete(product);
         _unitOfWork.Save();
-        TempData["success"] = "Product deleted successfully";
-
-        return RedirectToAction("Index", "Product");
+        return Json(new { success = true, message = "Product deleted successfully!" });
     }
+
+    #endregion
 }
