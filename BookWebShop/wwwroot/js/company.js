@@ -13,8 +13,8 @@ function loadDataTable() {
         },
         "columns": [
             { data: 'name', "width": "25%" },
-            { data: 'streetAddress', "width": "20%" },
-            { data: 'city', "width": "25%" },
+            { data: 'streetAddress', "width": "10%" },
+            { data: 'city', "width": "15%" },
             { data: 'state', "width": "10%" },
             { data: 'postalCode', "width": "10%" },
             { data: 'phoneNumber', "width": "10%" },

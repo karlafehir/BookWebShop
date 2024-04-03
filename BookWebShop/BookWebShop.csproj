@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\BookWebShop.DataAccess\BookWebShop.DataAccess.csproj" />
     <ProjectReference Include="..\BookWebShop.Models\BookWebShop.Models.csproj" />
     <ProjectReference Include="..\BookWebShop.Utility\BookWebShop.Utility.csproj" />
