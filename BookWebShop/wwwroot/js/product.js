@@ -6,24 +6,23 @@ $(document).ready(function () {
 
 //https://datatables.net/
 function loadDataTable() {
-    //tblData id iz company index.cshtml
+    //tblData id iz product index.cshtml
     dataTable = $("#tblData").DataTable({
         "ajax": {
-            url: '/company/getall'
+            url: '/product/getall'
         },
         "columns": [
-            { data: 'name', "width": "25%" },
-            { data: 'streetAddress', "width": "20%" },
-            { data: 'city', "width": "25%" },
-            { data: 'state', "width": "10%" },
-            { data: 'postalCode', "width": "10%" },
-            { data: 'phoneNumber', "width": "10%" },
+            { data: 'title', "width": "25%" },
+            { data: 'isbn', "width": "20%" },
+            { data: 'author', "width": "25%" },
+            { data: 'listPrice', "width": "10%" },
+            { data: 'category.name', "width": "20%" },
             {
                 data: 'id',
                 "render": function (data) {
                     return `<div class="w-75 btn-group" role="group">
-                        <a href="/company/upsert?id=${data}" class="btn btn-primary mx-2"><i class="bi bu-pencil-square"></i>Edit</a>
-                        <a onClick=Delete('/company/delete/${data}') class="btn btn-primary mx-2"><i class="bi bu-pencil-square"></i>Delete</a>
+                        <a href="/product/upsert?id=${data}" class="btn btn-primary mx-2"><i class="bi bu-pencil-square"></i>Edit</a>
+                        <a onClick=Delete('/product/delete/${data}') class="btn btn-primary mx-2"><i class="bi bu-pencil-square"></i>Delete</a>
                     </div>`
                 },
                 "width": "25%"
@@ -32,25 +31,25 @@ function loadDataTable() {
     })
 }
 
-////sweetAlerts2
-//function Delete(url) {
-//    Swal.fire({
-//        title: "Are you sure?",
-//        text: "You won't be able to revert this!",
-//        icon: "warning",
-//        showCancelButton: true,
-//        confirmButtonColor: "#3085d6",
-//        cancelButtonColor: "#d33",
-//        confirmButtonText: "Yes, delete it!"
-//    }).then((result) => {
-//        if (result.isConfirmed) {
-//            $.ajax({
-//                url: url,
-//                type: 'DELETE',
-//                success: function (data) {
-//                    dataTable.ajax.reload();
-//                }
-//            })
-//        }
-//    });
-//}
+//sweetAlerts2
+function Delete(url) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                success: function (data) {
+                    dataTable.ajax.reload();
+                }
+            })
+        }
+    });
+}
