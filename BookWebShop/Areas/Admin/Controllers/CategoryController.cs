@@ -2,9 +2,13 @@
 using BookWebShop.DataAccess.Data;
 using BookWebShop.Models.Models;
 using BookWebShop.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
+using BookWebShop.Utility;
 
 namespace BookWebShop.Areas.Admin.Controllers;
 [Area("Admin")]
+//pristup page-u samo ako je logiran admin
+[Authorize(Roles = Role.Role_Admin)]
 public class CategoryController : Controller
 {
     //private readonly ApplicationDbContext _context;

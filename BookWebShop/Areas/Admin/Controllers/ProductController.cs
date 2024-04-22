@@ -4,9 +4,13 @@ using BookWebShop.Models.Models;
 using BookWebShop.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using BookWebShop.Models.ViewModels;
+using BookWebShop.Utility;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookWebShop.Areas.Admin.Controllers;
 [Area("Admin")]
+//pristup page-u samo ako je logiran admin
+[Authorize(Roles = Role.Role_Admin)]
 public class ProductController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
