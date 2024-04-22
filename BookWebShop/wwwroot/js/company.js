@@ -9,7 +9,7 @@ function loadDataTable() {
     //tblData id iz company index.cshtml
     dataTable = $("#tblData").DataTable({
         "ajax": {
-            url: '/company/getall'
+            url: '/admin/company/getall'
         },
         "columns": [
             { data: 'name', "width": "25%" },
@@ -22,8 +22,8 @@ function loadDataTable() {
                 data: 'id',
                 "render": function (data) {
                     return `<div class="w-75 btn-group" role="group">
-                        <a href="/company/upsert?id=${data}" class="btn btn-primary mx-2"><i class="bi bu-pencil-square"></i>Edit</a>
-                        <a onClick=Delete('/company/delete/${data}') class="btn btn-primary mx-2"><i class="bi bu-pencil-square"></i>Delete</a>
+                        <a href="/admin/company/upsert?id=${data}" class="btn btn-primary mx-2"><i class="bi bu-pencil-square"></i>Edit</a>
+                        <a onClick=Delete('/admin/company/delete/${data}') class="btn btn-primary mx-2"><i class="bi bu-pencil-square"></i>Delete</a>
                     </div>`
                 },
                 "width": "25%"

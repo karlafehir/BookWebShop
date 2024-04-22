@@ -5,8 +5,8 @@ using BookWebShop.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using BookWebShop.Models.ViewModels;
 
-namespace BookWebShop.Controllers;
-
+namespace BookWebShop.Areas.Admin.Controllers;
+[Area("Admin")]
 public class ProductController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
