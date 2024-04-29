@@ -3,6 +3,9 @@ using System.Diagnostics;
 using BookWebShop.Models.Models;
 using BookWebShop.Models.Models;
 using BookWebShop.DataAccess.Repository.IRepository;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookWebShop.Areas.Customer.Controllers;
 [Area("Customer")]
@@ -31,7 +34,44 @@ public class HomeController : Controller
 
     public IActionResult Details(int productId)
     {
-        Product product = _unitOfWork.Product.Get(p=> p.Id == productId, includeProperties: "Category");
-        return View(product);
+        ShoppingCart shoppingCart = new()
+        {
+            Product = _unitOfWork.Product.Get(p => p.Id == productId, includeProperties: "Category"),
+            Count = 1,
+            ProductId = productId
+        };
+
+        return View(shoppingCart);
+    }
+
+
+    [HttpPost]
+    [Authorize]
+    public IActionResult Details(ShoppingCart shoppingCart)
+    {
+        //get userId
+        var claimsIdentity = (ClaimsIdentity)User.Identity;
+        var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+        shoppingCart.ApplicationUserId = userId;
+
+        //check for duplicated
+        ShoppingCart cartFromDb = _unitOfWork.ShoppingCart
+            .Get(sp => sp.ApplicationUserId == userId
+            && sp.ProductId == shoppingCart.ProductId);
+
+        if(cartFromDb != null)
+        {
+            //update if shoppingCart exists
+            cartFromDb.Count += shoppingCart.Count;
+            _unitOfWork.ShoppingCart.Update(cartFromDb);
+        }
+        else
+        {
+            _unitOfWork.ShoppingCart.Add(shoppingCart);
+        }
+
+        _unitOfWork.Save();
+        return RedirectToAction(nameof(Index));
     }
 }
