@@ -4,15 +4,18 @@ using BookWebShop.Models.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Claims;
+using BookWebShop.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookWebShop.Areas.Customer.Controllers;
 [Area("Customer")]
+[Authorize]
 
 public class ShoppingCartController : Controller
 {
-
     private readonly IUnitOfWork _unitOfWork;
-
+    public ShoppingCartViewModel ShoppingCartViewModel { get; set; }
+    
     public ShoppingCartController(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
@@ -23,8 +26,40 @@ public class ShoppingCartController : Controller
         var claimsIdentity = (ClaimsIdentity)User.Identity;
         var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-        IEnumerable<ShoppingCart> shoppingCartList = _unitOfWork.ShoppingCart.GetAll(sp => sp.ApplicationUserId == userId, includeProperties:"Product").ToList();
+        // IEnumerable<ShoppingCart> shoppingCartList = _unitOfWork.ShoppingCart.GetAll(sp => sp.ApplicationUserId == userId, includeProperties:"Product").ToList();
 
-        return View(shoppingCartList);
+        ShoppingCartViewModel = new ShoppingCartViewModel()
+        {
+            ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(sp => sp.ApplicationUserId == userId, includeProperties: "Product")
+        };
+        
+        foreach (var shoppingCart in ShoppingCartViewModel.ShoppingCartList)
+        {
+            shoppingCart.Price = CalculatePriceByQuantity(shoppingCart);
+            ShoppingCartViewModel.TotalPrice += (shoppingCart.Price * shoppingCart.Count);
+        }
+        
+        return View(ShoppingCartViewModel);
+    }
+    
+    private double CalculatePriceByQuantity(ShoppingCart shoppingCart)
+    {
+        int quantity = shoppingCart.Count;
+        double price;
+
+        if (quantity <= 50)
+        {
+            price = shoppingCart.Product.Price;
+        }
+        else if (quantity <= 100)
+        {
+            price = shoppingCart.Product.Price50;
+        }
+        else
+        {
+            price = shoppingCart.Product.Price100;
+        }
+
+        return price;
     }
 }
