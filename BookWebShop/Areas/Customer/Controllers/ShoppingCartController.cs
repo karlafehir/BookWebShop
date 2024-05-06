@@ -41,6 +41,11 @@ public class ShoppingCartController : Controller
         
         return View(ShoppingCartViewModel);
     }
+
+    public IActionResult Summary()
+    {
+        return View();
+    }
     
     private double CalculatePriceByQuantity(ShoppingCart shoppingCart)
     {
