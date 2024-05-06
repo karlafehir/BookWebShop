@@ -1,3 +1,4 @@
+@model ShoppingCartViewModel
 
 <form method="post">
 	<br />
@@ -27,70 +28,74 @@
 							</div>
 							<div class="row my-1">
 								<div class="col-3">
-									<label>Name</label>
+									<label asp-for="OrderHeader.Name">Name</label>
 								</div>
 								<div class="col-9">
-									<input  class="form-control" />
+									<input asp-for="OrderHeader.Name" class="form-control border-0" />
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">
-									<label>Phone</label>
+									<label asp-for="OrderHeader.PhoneNumber">Phone</label>
 								</div>
 								<div class="col-9">
-									<input  class="form-control" />
+									<input asp-for="OrderHeader.PhoneNumber" class="form-control" />
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">
-									<label>Street Address</label>
+									<label asp-for="OrderHeader.StreetAddress">Street Address</label>
 								</div>
 								<div class="col-9">
-									<input  class="form-control" />
+									<input asp-for="OrderHeader.StreetAddress" class="form-control" />
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">
-									<label>City</label>
+									<label asp-for="OrderHeader.City">City</label>
 								</div>
 								<div class="col-9">
-									<input  class="form-control" />
+									<input asp-for="OrderHeader.City" class="form-control" />
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">
-									<label>State</label>
+									<label asp-for="OrderHeader.State">State</label>
 								</div>
 								<div class="col-9">
-									<input  class="form-control" />
+									<input asp-for="OrderHeader.State" class="form-control" />
 								</div>
 							</div>
 							<div class="row my-1">
 								<div class="col-3">
-									<label>Postal Code</label>
+									<label asp-for="OrderHeader.PostalCode">Postal Code</label>
 								</div>
 								<div class="col-9">
-									<input  class="form-control" />
+									<input asp-for="OrderHeader.PostalCode" class="form-control" />
 								</div>
 							</div>
 						</div>
+
+						
+
 						<div class="col-12 col-lg-5 offset-lg-1">
 							<h4 class="d-flex justify-content-between align-items-center mb-3">
 								<span class="text-info">Order Summary:</span>
 							</h4>
 							<ul class="list-group mb-3">
-								<li class="list-group-item d-flex justify-content-between">
-									<div>
-										<h6 class="my-0">Title</h6>
-										<small class="text-muted">Quantity: Count</small>
-									</div>
-									<span class="text-muted">Price * Count </span>
-								</li>
-
-
+								@foreach (var item in Model.ShoppingCartList)
+								{
+									<li class="list-group-item d-flex justify-content-between">
+										<div>
+											<h6 class="my-0">@item.Product.Title</h6>
+											<small class="text-muted">Quantity: @item.Count</small>
+										</div>
+										<span class="text-muted">@item.Price * @item.Count </span>
+									</li>
+								}
 								<li class="list-group-item d-flex justify-content-between bg-light">
-									<small class="text-info">Total (USD)</small>
-									<strong class="text-info">$$</strong>
+									<small class="text-info">Total</small>
+									<strong class="text-info">@Model.OrderHeader.OrderTotal</strong>
 								</li>
 							</ul>
 						</div>
@@ -100,7 +105,7 @@
 			<div class="card-footer">
 				<div class="row">
 					<div class="col-12 col-md-8 pt-2">
-						<p style="color:maroon; font-size:14px;">Estimate Arrival Date:
+						<p style="color:maroon; font-size:14px;">Estimate Arrival Date: 
 							
 						</p>
 					</div>

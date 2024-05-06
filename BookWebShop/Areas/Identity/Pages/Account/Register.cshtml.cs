@@ -180,6 +180,7 @@ namespace BookWebShop.Areas.Identity.Pages.Account
                 user.State = Input.State;
                 user.StreetAddress = Input.StreetAddress;
                 user.City = Input.City;
+                user.Name = Input.Name;
                 user.PostalCode = Input.PostalCode;
                 user.PhoneNumber = Input.PhoneNumber;
                 if (Input.Role == "Company")
