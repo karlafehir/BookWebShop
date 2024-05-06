@@ -62,4 +62,45 @@ public class ShoppingCartController : Controller
 
         return price;
     }
+    
+    public IActionResult Plus(int cartId)
+    {
+        var cartFromDb = _unitOfWork.ShoppingCart.Get(sc => sc.Id == cartId);
+        cartFromDb.Count += 1;
+
+        _unitOfWork.ShoppingCart.Update(cartFromDb);
+        _unitOfWork.Save();
+
+        return RedirectToAction(nameof(Index));
+    }
+    
+    public IActionResult Minus(int cartId)
+    {
+        var cartFromDb = _unitOfWork.ShoppingCart.Get(sc => sc.Id == cartId);
+        
+        //remove item if count is lower than 1
+        if (cartFromDb.Count <= 1)
+        {
+            _unitOfWork.ShoppingCart.Delete(cartFromDb);
+        }
+        else
+        {
+            cartFromDb.Count -= 1;
+            _unitOfWork.ShoppingCart.Update(cartFromDb);
+        }
+
+        _unitOfWork.Save();
+
+        return RedirectToAction(nameof(Index));
+    }
+    
+    public IActionResult Remove(int cartId)
+    {
+        var cartFromDb = _unitOfWork.ShoppingCart.Get(sc => sc.Id == cartId);
+
+        _unitOfWork.ShoppingCart.Delete(cartFromDb);
+        _unitOfWork.Save();
+
+        return RedirectToAction(nameof(Index));
+    }
 }
