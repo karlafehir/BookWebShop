@@ -82,9 +82,9 @@ public class ShoppingCartController : Controller
     [ActionName("Summary")]
 	public IActionResult SummaryPOST()
 	{
-		//get userId
-		var claimsIdentity = (ClaimsIdentity)User.Identity;
-		var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //get userId
+        var claimsIdentity = (ClaimsIdentity)User.Identity;
+        var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
         ShoppingCartViewModel.ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(sp => sp.ApplicationUserId == userId, includeProperties: "Product");
 
@@ -93,24 +93,24 @@ public class ShoppingCartController : Controller
 
         ApplicationUser applicationUser = _unitOfWork.ApplicationUser.Get(au => au.Id == userId);
 
-		foreach (var shoppingCart in ShoppingCartViewModel.ShoppingCartList)
-		{
-			shoppingCart.Price = CalculatePriceByQuantity(shoppingCart);
-			ShoppingCartViewModel.OrderHeader.OrderTotal += (shoppingCart.Price * shoppingCart.Count);
-		}
+        foreach (var cart in ShoppingCartViewModel.ShoppingCartList)
+        {
+            cart.Price = CalculatePriceByQuantity(cart);
+            ShoppingCartViewModel.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+        }
 
-        if(applicationUser.CompanyId.GetValueOrDefault() == 0)
+        if (applicationUser.CompanyId.GetValueOrDefault() == 0)
         {
             //Customer
             ShoppingCartViewModel.OrderHeader.PaymentStatus = PaymentStatus.Pending;
-			ShoppingCartViewModel.OrderHeader.OrderStatus = PaymentStatus.Pending;
-		}
+            ShoppingCartViewModel.OrderHeader.OrderStatus = OrderStatus.Pending;
+        }
         else
-		{
+        {
             //Company
-			ShoppingCartViewModel.OrderHeader.PaymentStatus = PaymentStatus.Delayed;
-			ShoppingCartViewModel.OrderHeader.OrderStatus = PaymentStatus.Approved;
-		}
+            ShoppingCartViewModel.OrderHeader.PaymentStatus = PaymentStatus.Delayed;
+            ShoppingCartViewModel.OrderHeader.OrderStatus = OrderStatus.Approved;
+        }
 
         _unitOfWork.OrderHeader.Add(ShoppingCartViewModel.OrderHeader);
         _unitOfWork.Save();

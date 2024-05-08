@@ -18,6 +18,6 @@ public class OrderHeaderRepository : Repository<OrderHeader>, IOrderHeaderReposi
     }
     public void Update(OrderHeader orderHeader)
     {
-        _context.Update(orderHeader);
+        _context.OrderHeaders.Update(orderHeader);
     }
 }
