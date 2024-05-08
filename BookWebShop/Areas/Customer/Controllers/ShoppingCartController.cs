@@ -7,6 +7,11 @@ using System.Security.Claims;
 using BookWebShop.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using BookWebShop.Utility;
+using Stripe.BillingPortal;
+using Stripe.Checkout;
+using SessionCreateOptions = Stripe.Checkout.SessionCreateOptions;
+using SessionService = Stripe.Checkout.SessionService;
+using Session = Stripe.Checkout.Session;
 
 namespace BookWebShop.Areas.Customer.Controllers;
 [Area("Customer")]
@@ -129,11 +134,76 @@ public class ShoppingCartController : Controller
             _unitOfWork.Save();
         }
 
+        if (applicationUser.CompanyId.GetValueOrDefault() == 0)
+        {
+            var domain = "https://localhost:7076/";
+            //Customer account - make payment
+            var options = new SessionCreateOptions
+            {
+                SuccessUrl = domain + $"customer/shoppingcart/OrderConfirmation?id={ShoppingCartViewModel.OrderHeader.Id}",
+                CancelUrl = domain + "customer/shoppingcart/index",
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment",
+            };
+
+            foreach (var item in ShoppingCartViewModel.ShoppingCartList)
+            {
+                var sessionLineItem = new SessionLineItemOptions()
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(item.Price * 100),
+                        Currency = "eur",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions()
+                        {
+                            Name = item.Product.Title,
+                        }
+                    },
+                    Quantity = item.Count
+                };
+                options.LineItems.Add(sessionLineItem);
+            }
+
+            //TODO - Add logic when shopping cart is empty
+			var service = new SessionService();
+            Session session = service.Create(options);
+
+            _unitOfWork.OrderHeader.UpdateStripePaymentId(ShoppingCartViewModel.OrderHeader.Id, session.Id, session.PaymentIntentId);
+            _unitOfWork.Save();
+
+            Response.Headers.Add("Location", session.Url);
+
+            return new StatusCodeResult(303);
+        }
+
+        //
         return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartViewModel.OrderHeader.Id });
 	}
 
     public IActionResult OrderConfirmation(int id)
     {
+        //Check if payment is successful
+        OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(oh => oh.Id == id, includeProperties: "ApplicationUser");
+
+        //Customer payment (Only company payment can be delayed)
+        if (orderHeader.PaymentStatus != PaymentStatus.Delayed)
+        {
+            var sessionService = new SessionService();
+            Session session = sessionService.Get(orderHeader.SessionId);
+
+            if (session.PaymentStatus.ToLower() == "paid")
+            {
+                _unitOfWork.OrderHeader.UpdateStripePaymentId(id, session.Id, session.PaymentIntentId);
+				_unitOfWork.OrderHeader.UpdateStatus(id, OrderStatus.Approved, PaymentStatus.Approved);
+                _unitOfWork.Save();
+			}
+        }
+
+        List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart.GetAll(sc => sc.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+
+        _unitOfWork.ShoppingCart.DeleteRange(shoppingCarts);
+        _unitOfWork.Save();
+
         return View(id);
     }
 
