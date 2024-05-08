@@ -109,28 +109,24 @@ namespace BookWebShop.Areas.Identity.Pages.Account
 
             [Required]
             [Display(Name = "State")]
-            public string State { get; set; }
+            public string? State { get; set; }
 
             [Required]
             [Display(Name = "StreetAddress")]
-            public string StreetAddress { get; set; }
+            public string? StreetAddress { get; set; }
 
             [Required]
             [Display(Name = "City")]
-            public string City { get; set; }
-
+            public string? City { get; set; }
             [Required]
             [Display(Name = "PostalCode")]
-            public int PostalCode { get; set; }
-
+            public int? PostalCode { get; set; }
             [Required]
             [Display(Name = "PhoneNumber")]
-            public string PhoneNumber { get; set; }
-
+            public string? PhoneNumber { get; set; }
             public string? Role { get; set; }
             [ValidateNever]
             public IEnumerable<SelectListItem> RoleList { get; set; }
-
             public int? CompanyId { get; set; }
             [ValidateNever]
             public IEnumerable<SelectListItem> CompanyList { get; set; }
